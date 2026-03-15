@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII Warp - Narrow UI</title>
+    <title>The Field | Home</title>
     <style>
         * {
             margin: 0;
@@ -19,10 +19,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: "Inter", -apple-system, sans-serif;
         }
 
-        /* The Background ASCII Layer */
+        /* ASCII Background Layer */
         #ascii-background {
             position: fixed;
             top: 0;
@@ -35,59 +35,130 @@
             user-select: none;
             font-family: "Courier New", Courier, monospace;
             font-size: 11px;
-            color: #444; /* Darker for better contrast */
-            cursor: none;
-            text-align: center;
+            color: #333; /* Darkened for higher contrast with the white box */
             z-index: 1;
+            text-align: center;
         }
 
-        /* The Centered White Box - Now Shorter (Narrower) */
-        .content-box {
+        /* Main White Container */
+        .home-container {
             position: relative;
             z-index: 10;
-            
-            /* ADJUST WIDTH HERE: 60% makes it significantly narrower */
-            width: 60%; 
-            /* Keeps it 2 inches from top/bottom */
-            height: calc(100% - 150px); 
-            
-            background: rgba(255, 255, 255, 0.95);
+            width: 55%; /* Shorter width as requested */
+            height: calc(100% - 160px); 
+            background: rgba(255, 255, 255, 0.98);
             color: #000;
-            border-radius: 40px; 
-            padding: 50px;
-            overflow-y: auto; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 60px;
+            overflow-y: auto;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.9);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Minimalist Decoration Elements */
+        .deco-line {
+            width: 40px;
+            height: 4px;
+            background: #000;
+            margin-bottom: 20px;
+        }
+
+        .deco-dot-grid {
+            font-family: monospace;
+            font-size: 10px;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: -3px;
+            line-height: 1;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+
+        /* About Box */
+        .about-section {
+            margin-top: 50px;
+            padding: 30px;
+            border: 2px solid #000;
+            border-radius: 12px;
+            background: #fff;
+        }
+
+        .about-section h2 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .about-section h2::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: black;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .about-section p {
+            line-height: 1.6;
+            font-size: 1rem;
+            color: #333;
         }
 
         /* Scrollbar Styling */
-        .content-box::-webkit-scrollbar {
-            width: 6px;
-        }
-        .content-box::-webkit-scrollbar-thumb {
-            background: #ddd;
-            border-radius: 10px;
-        }
+        .home-container::-webkit-scrollbar { width: 5px; }
+        .home-container::-webkit-scrollbar-thumb { background: #000; }
 
-        h1 { margin-bottom: 25px; font-weight: 800; letter-spacing: -1px; }
-        p { margin-bottom: 20px; line-height: 1.7; color: #333; }
+        .footer-note {
+            margin-top: 60px;
+            font-size: 0.7rem;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
 
     <div id="ascii-background"></div>
 
-    <div class="content-box">
-        <h1>Shorter Interface</h1>
-        <p>The width of this container has been reduced to create a more focused, column-like feel.</p>
-        <p>This layout is often used for reading-heavy interfaces because shorter line lengths are easier on the eyes.</p>
-        <div style="height: 800px; border-left: 2px solid #eee; padding-left: 20px; margin-top: 40px;">
-            <p>You can still scroll through this content independently.</p>
-            <p>Notice how the ASCII distortion still follows your mouse movements even when you are hovering over this white surface.</p>
-            <p>The "warp" effect remains fluid and continuous across the entire screen width, regardless of the box placement.</p>
-        </div>
-        <p>End of Column.</p>
-    </div>
+    <main class="home-container">
+        <div class="deco-dot-grid">+ + + + +</div>
+        <div class="deco-line"></div>
+        
+        <header>
+            <h1><br>Continuous<br>Field</h1>
+        </header>
+
+        <section class="about-section">
+            <h2>Manifesto / Purpose</h2>
+            <p>
+                This space is an exploration of digital fluidity. The background behind this interface is a reactive ASCII landscape—a persistent field of data that responds to your physical presence. 
+            </p>
+            <p style="margin-top: 15px;">
+                While the UI remains rigid and legible, the reality beneath it is in constant, unpredictable motion. Move your cursor to disturb the noise.
+            </p>
+        </section>
+
+        <section style="margin-top: 40px;">
+            <p>
+                Use the scrollbar on the right to navigate the internal documentation of this project. The background will remain locked in place, ensuring the atmosphere is never broken.
+            </p>
+        </section>
+
+        <div class="footer-note">System Status: Active // Version 1.0.4</div>
+        
+        <div style="height: 300px;"></div>
+    </main>
 
     <script>
         const container = document.getElementById('ascii-background');
@@ -106,7 +177,6 @@
         }
 
         window.addEventListener('resize', updateLayout);
-        
         window.addEventListener('mousemove', (e) => {
             targetX = e.clientX;
             targetY = e.clientY;
@@ -114,8 +184,8 @@
 
         function animate() {
             time += 0.003; 
-            mouseX += (targetX - mouseX) * 0.05;
-            mouseY += (targetY - mouseY) * 0.05;
+            mouseX += (targetX - mouseX) * 0.06;
+            mouseY += (targetY - mouseY) * 0.06;
 
             let output = "";
             for (let y = 0; y < rows; y++) {
@@ -127,7 +197,7 @@
                     const dy = mouseY - py;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     
-                    const warpStrength = Math.exp(-dist / 200) * 35;
+                    const warpStrength = Math.exp(-dist / 220) * 38;
                     const displacedX = x + (dx / (dist + 1)) * warpStrength;
                     const displacedY = y + (dy / (dist + 1)) * warpStrength;
 
