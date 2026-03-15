@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII Liquid Field</title>
+    <title>ASCII Static Warp</title>
     <style>
         body {
             margin: 0;
@@ -15,7 +15,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            cursor: crosshair;
+            cursor: none;
         }
 
         #screen {
@@ -24,6 +24,7 @@
             letter-spacing: 1px;
             user-select: none;
             font-size: 14px;
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
@@ -38,7 +39,8 @@
         let cols, rows;
         let mouseX = -1000;
         let mouseY = -1000;
-        let time = 0;
+        let targetX = -1000;
+        let targetY = -1000;
 
         function updateLayout() {
             cols = Math.floor(window.innerWidth / 10);
@@ -47,12 +49,15 @@
 
         window.addEventListener('resize', updateLayout);
         window.onmousemove = (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
+            targetX = e.clientX;
+            targetY = e.clientY;
         };
 
         function animate() {
-            time += 0.03;
+            // Smoothly interpolate mouse position for a "heavy" liquid feel
+            mouseX += (targetX - mouseX) * 0.1;
+            mouseY += (targetY - mouseY) * 0.1;
+
             let output = "";
 
             for (let y = 0; y < rows; y++) {
@@ -60,29 +65,29 @@
                     const px = x * 10;
                     const py = y * 14;
 
-                    // 1. THE RANDOM FIELD (Background Waves)
-                    // We layer three different sine waves to simulate "random" interference
-                    const noise = 
-                        Math.sin(x * 0.1 + time) + 
-                        Math.cos(y * 0.1 + time * 0.5) + 
-                        Math.sin((x + y) * 0.05 + time * 0.8);
-                    
-                    // 2. THE MOUSE INTERACTION (The Warp)
+                    // Calculate distance to mouse
                     const dx = mouseX - px;
                     const dy = mouseY - py;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     
-                    // Create a "pulse" that radiates from the mouse
-                    const mouseForce = Math.exp(-dist / 100) * 10;
-                    const ripple = Math.sin(dist * 0.2 - time * 5) * mouseForce;
+                    // STATIC FIELD: A subtle pattern that doesn't move on its own
+                    // Using a modulo and coordinate check to create a faint grid
+                    let baseValue = (x % 4 === 0 && y % 2 === 0) ? 1 : 0;
 
-                    // Combine them
-                    const totalInfluence = (noise + ripple) + 2; // Offset to keep it positive
+                    // MOUSE DISTORTION:
+                    // This creates a "pinch" or "magnification" effect
+                    const radius = 200;
+                    let distortion = 0;
                     
-                    // Map to character index
-                    let charIdx = Math.floor((totalInfluence / 5) * chars.length);
+                    if (dist < radius) {
+                        // Creates a bell-curve intensity based on mouse proximity
+                        distortion = Math.cos((dist / radius) * (Math.PI / 2)) * 8;
+                    }
+
+                    // Map the combination of the static grid + mouse warp to the ASCII set
+                    let charIdx = Math.floor(baseValue + distortion);
                     
-                    // Clamp values
+                    // Clamp to the length of our character string
                     charIdx = Math.max(0, Math.min(chars.length - 1, charIdx));
                     
                     output += chars[charIdx];
