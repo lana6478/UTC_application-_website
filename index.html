@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII Static Warp</title>
+    <title>ASCII Fluid Field</title>
     <style>
         body {
             margin: 0;
@@ -15,16 +15,16 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            cursor: none;
+            cursor: none; /* Mouse is invisible, only its impact is seen */
         }
 
         #screen {
             white-space: pre;
-            line-height: 0.9;
-            letter-spacing: 1px;
+            line-height: 0.85;
+            letter-spacing: 0px;
             user-select: none;
-            font-size: 14px;
-            text-shadow: 0 0 2px rgba(255, 255, 255, 0.3);
+            font-size: 12px;
+            color: #ddd; /* Slightly dimmed for a grittier look */
         }
     </style>
 </head>
@@ -34,61 +34,53 @@
 
     <script>
         const container = document.getElementById('screen');
-        const chars = " .:-=+*#%@";
+        // Dense character set for a "filled in" look
+        const chars = " .:-=+*#%@#%*+=-:. "; 
         
         let cols, rows;
         let mouseX = -1000;
         let mouseY = -1000;
-        let targetX = -1000;
-        let targetY = -1000;
+        let time = 0;
 
         function updateLayout() {
-            cols = Math.floor(window.innerWidth / 10);
-            rows = Math.floor(window.innerHeight / 14);
+            cols = Math.floor(window.innerWidth / 8);
+            rows = Math.floor(window.innerHeight / 12);
         }
 
         window.addEventListener('resize', updateLayout);
         window.onmousemove = (e) => {
-            targetX = e.clientX;
-            targetY = e.clientY;
+            mouseX = e.clientX;
+            mouseY = e.clientY;
         };
 
         function animate() {
-            // Smoothly interpolate mouse position for a "heavy" liquid feel
-            mouseX += (targetX - mouseX) * 0.1;
-            mouseY += (targetY - mouseY) * 0.1;
-
+            time += 0.005; // Extremely slow background drift
             let output = "";
 
             for (let y = 0; y < rows; y++) {
                 for (let x = 0; x < cols; x++) {
-                    const px = x * 10;
-                    const py = y * 14;
+                    const px = x * 8;
+                    const py = y * 12;
 
-                    // Calculate distance to mouse
+                    // 1. DENSE SLOW BACKGROUND
+                    // Using multiple layers of slow sines for a "thick" look
+                    const bgBase = 
+                        Math.sin(x * 0.05 + time) * Math.cos(y * 0.05 + time * 0.5);
+                    
+                    // 2. MOUSE INTERACTION (Displacement)
                     const dx = mouseX - px;
                     const dy = mouseY - py;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     
-                    // STATIC FIELD: A subtle pattern that doesn't move on its own
-                    // Using a modulo and coordinate check to create a faint grid
-                    let baseValue = (x % 4 === 0 && y % 2 === 0) ? 1 : 0;
-
-                    // MOUSE DISTORTION:
-                    // This creates a "pinch" or "magnification" effect
-                    const radius = 200;
-                    let distortion = 0;
+                    // The mouse "pushes" the wave phase
+                    // We don't add brightness, we just warp the background calculation
+                    const push = Math.exp(-dist / 80) * 10;
                     
-                    if (dist < radius) {
-                        // Creates a bell-curve intensity based on mouse proximity
-                        distortion = Math.cos((dist / radius) * (Math.PI / 2)) * 8;
-                    }
+                    // Combine the drift with the mouse "dent"
+                    const finalValue = Math.sin(bgBase * 5 + push);
 
-                    // Map the combination of the static grid + mouse warp to the ASCII set
-                    let charIdx = Math.floor(baseValue + distortion);
-                    
-                    // Clamp to the length of our character string
-                    charIdx = Math.max(0, Math.min(chars.length - 1, charIdx));
+                    // Map to characters (shifting index based on the "push")
+                    let charIdx = Math.floor(((finalValue + 1) / 2) * (chars.length - 1));
                     
                     output += chars[charIdx];
                 }
