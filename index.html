@@ -3,100 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASCII Morph Screen</title>
+    <title>ASCII Liquid Field</title>
     <style>
         body {
             margin: 0;
-            padding: 0;
-            background-color: black;
-            color: white;
-            font-family: monospace;
+            background-color: #000;
+            color: #fff;
+            font-family: "Courier New", Courier, monospace;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            cursor: none; /* Hide cursor for immersion */
+            cursor: crosshair;
         }
 
-        #ascii-container {
+        #screen {
             white-space: pre;
-            line-height: 1;
-            letter-spacing: 2px;
-            pointer-events: none;
+            line-height: 0.9;
+            letter-spacing: 1px;
             user-select: none;
-        }
-
-        /* Subtle "glow" effect for the ASCII */
-        #ascii-container span {
-            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
 
-    <div id="ascii-container"></div>
+    <div id="screen"></div>
 
     <script>
-        const container = document.getElementById('ascii-container');
+        const container = document.getElementById('screen');
+        const chars = " .:-=+*#%@";
         
-        // Configuration
-        const chars = " .:-=+*#%@"; // Darkest to brightest characters
         let cols, rows;
-        const charWidth = 10; 
-        const charHeight = 18;
-        
-        let mouseX = 0;
-        let mouseY = 0;
+        let mouseX = -1000;
+        let mouseY = -1000;
+        let time = 0;
 
-        function updateGridSize() {
-            cols = Math.floor(window.innerWidth / charWidth);
-            rows = Math.floor(window.innerHeight / charHeight);
+        function updateLayout() {
+            cols = Math.floor(window.innerWidth / 10);
+            rows = Math.floor(window.innerHeight / 14);
         }
 
-        window.addEventListener('resize', updateGridSize);
-        window.addEventListener('mousemove', (e) => {
+        window.addEventListener('resize', updateLayout);
+        window.onmousemove = (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
-        });
+        };
 
-        function render() {
+        function animate() {
+            time += 0.03;
             let output = "";
-            
+
             for (let y = 0; y < rows; y++) {
                 for (let x = 0; x < cols; x++) {
-                    const posX = x * charWidth;
-                    const posY = y * charHeight;
+                    const px = x * 10;
+                    const py = y * 14;
 
-                    // Calculate distance from mouse
-                    const dx = mouseX - posX;
-                    const dy = mouseY - posY;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    // Morph logic: Create a "ripple" or "indent" effect
-                    // We use a sine wave based on distance to create the distortion
-                    const wave = Math.sin(distance * 0.05 - Date.now() * 0.005);
-                    const intensity = Math.max(0, 1 - (distance / 300)); // Influence radius
+                    // 1. THE RANDOM FIELD (Background Waves)
+                    // We layer three different sine waves to simulate "random" interference
+                    const noise = 
+                        Math.sin(x * 0.1 + time) + 
+                        Math.cos(y * 0.1 + time * 0.5) + 
+                        Math.sin((x + y) * 0.05 + time * 0.8);
                     
-                    // Determine which character to use
-                    let charIndex = Math.floor((wave + 1) * 0.5 * (chars.length - 1));
+                    // 2. THE MOUSE INTERACTION (The Warp)
+                    const dx = mouseX - px;
+                    const dy = mouseY - py;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
                     
-                    // Boost brightness near the mouse
-                    if (intensity > 0) {
-                        charIndex = Math.min(chars.length - 1, charIndex + Math.floor(intensity * 5));
-                    }
+                    // Create a "pulse" that radiates from the mouse
+                    const mouseForce = Math.exp(-dist / 100) * 10;
+                    const ripple = Math.sin(dist * 0.2 - time * 5) * mouseForce;
 
-                    output += chars[charIndex];
+                    // Combine them
+                    const totalInfluence = (noise + ripple) + 2; // Offset to keep it positive
+                    
+                    // Map to character index
+                    let charIdx = Math.floor((totalInfluence / 5) * chars.length);
+                    
+                    // Clamp values
+                    charIdx = Math.max(0, Math.min(chars.length - 1, charIdx));
+                    
+                    output += chars[charIdx];
                 }
                 output += "\n";
             }
 
             container.textContent = output;
-            requestAnimationFrame(render);
+            requestAnimationFrame(animate);
         }
 
-        updateGridSize();
-        render();
+        updateLayout();
+        animate();
     </script>
 </body>
 </html>
