@@ -3,38 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTC_application_showcase</title>
+    <title>ASCII Warp - Narrow UI</title>
     <style>
-        body {
+        * {
             margin: 0;
-            background-color: #000;
-            color: #fff;
-            font-family: "Courier New", Courier, monospace;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: black;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            cursor: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        #screen {
+        /* The Background ASCII Layer */
+        #ascii-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 101vh;
             white-space: pre;
-            line-height: 0.75; /* Tighter vertical spacing */
+            line-height: 0.72; 
             letter-spacing: -1px;
             user-select: none;
+            font-family: "Courier New", Courier, monospace;
             font-size: 11px;
-            color: #eee;
+            color: #444; /* Darker for better contrast */
+            cursor: none;
+            text-align: center;
+            z-index: 1;
         }
+
+        /* The Centered White Box - Now Shorter (Narrower) */
+        .content-box {
+            position: relative;
+            z-index: 10;
+            
+            /* ADJUST WIDTH HERE: 60% makes it significantly narrower */
+            width: 60%; 
+            /* Keeps it 2 inches from top/bottom */
+            height: calc(100% - 150px); 
+            
+            background: rgba(255, 255, 255, 0.95);
+            color: #000;
+            border-radius: 40px; 
+            padding: 50px;
+            overflow-y: auto; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Scrollbar Styling */
+        .content-box::-webkit-scrollbar {
+            width: 6px;
+        }
+        .content-box::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 10px;
+        }
+
+        h1 { margin-bottom: 25px; font-weight: 800; letter-spacing: -1px; }
+        p { margin-bottom: 20px; line-height: 1.7; color: #333; }
     </style>
 </head>
 <body>
 
-    <div id="screen"></div>
+    <div id="ascii-background"></div>
+
+    <div class="content-box">
+        <h1>Shorter Interface</h1>
+        <p>The width of this container has been reduced to create a more focused, column-like feel.</p>
+        <p>This layout is often used for reading-heavy interfaces because shorter line lengths are easier on the eyes.</p>
+        <div style="height: 800px; border-left: 2px solid #eee; padding-left: 20px; margin-top: 40px;">
+            <p>You can still scroll through this content independently.</p>
+            <p>Notice how the ASCII distortion still follows your mouse movements even when you are hovering over this white surface.</p>
+            <p>The "warp" effect remains fluid and continuous across the entire screen width, regardless of the box placement.</p>
+        </div>
+        <p>End of Column.</p>
+    </div>
 
     <script>
-        const container = document.getElementById('screen');
-        // Dense character string for deep texture
+        const container = document.getElementById('ascii-background');
         const chars = " .:-=+*#%@@#%*+=-:. "; 
         
         let cols, rows;
@@ -43,64 +99,55 @@
         let time = 0;
 
         function updateLayout() {
-            cols = Math.floor(window.innerWidth / 7);
-            rows = Math.floor(window.innerHeight / 11);
+            const charW = 6.5; 
+            const charH = 8; 
+            cols = Math.ceil(window.innerWidth / charW);
+            rows = Math.ceil(window.innerHeight / charH) + 2;
         }
 
         window.addEventListener('resize', updateLayout);
-        window.onmousemove = (e) => {
+        
+        window.addEventListener('mousemove', (e) => {
             targetX = e.clientX;
             targetY = e.clientY;
-        };
+        });
 
         function animate() {
-            time += 0.003; // Base crawl speed
-            
-            // Smooth easing for the "physics" feel
-            mouseX += (targetX - mouseX) * 0.08;
-            mouseY += (targetY - mouseY) * 0.08;
+            time += 0.003; 
+            mouseX += (targetX - mouseX) * 0.05;
+            mouseY += (targetY - mouseY) * 0.05;
 
             let output = "";
-
             for (let y = 0; y < rows; y++) {
+                let rowText = "";
                 for (let x = 0; x < cols; x++) {
-                    const px = x * 7;
-                    const py = y * 11;
-
-                    // 1. CALCULATE DISTANCE
+                    const px = x * 6.5;
+                    const py = y * 8;
                     const dx = mouseX - px;
                     const dy = mouseY - py;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     
-                    // 2. INTENSE WARP LOGIC
-                    // We use a high multiplier (25) to physically shift the 
-                    // character lookup coordinates based on mouse distance.
-                    const warpStrength = Math.exp(-dist / 200) * 25;
-                    
-                    // Calculate "displaced" coordinates
+                    const warpStrength = Math.exp(-dist / 200) * 35;
                     const displacedX = x + (dx / (dist + 1)) * warpStrength;
                     const displacedY = y + (dy / (dist + 1)) * warpStrength;
 
-                    // 3. BACKGROUND TURBULENCE
-                    // Use the displaced coordinates to look up the background noise
                     const val = 
                         Math.sin(displacedX * 0.1) * Math.cos(displacedY * 0.1 + time) + 
-                        Math.sin((displacedX + displacedY) * 0.05 - time * 0.5);
+                        Math.sin((displacedX * 0.04) + (displacedY * 0.04) - time * 0.4);
 
-                    // 4. MAP TO ASCII
                     let charIdx = Math.floor(((val + 1.5) / 3) * (chars.length - 1));
                     charIdx = Math.max(0, Math.min(chars.length - 1, charIdx));
-                    
-                    output += chars[charIdx];
+                    rowText += chars[charIdx];
                 }
-                output += "\n";
+                output += rowText + "\n";
             }
-
             container.textContent = output;
             requestAnimationFrame(animate);
         }
 
         updateLayout();
+        targetX = window.innerWidth / 2;
+        targetY = window.innerHeight / 2;
         animate();
     </script>
 </body>
