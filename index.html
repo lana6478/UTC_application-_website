@@ -1,1 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Morph Screen</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: white;
+            font-family: monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            cursor: none; /* Hide cursor for immersion */
+        }
 
+        #ascii-container {
+            white-space: pre;
+            line-height: 1;
+            letter-spacing: 2px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Subtle "glow" effect for the ASCII */
+        #ascii-container span {
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ascii-container"></div>
+
+    <script>
+        const container = document.getElementById('ascii-container');
+        
+        // Configuration
+        const chars = " .:-=+*#%@"; // Darkest to brightest characters
+        let cols, rows;
+        const charWidth = 10; 
+        const charHeight = 18;
+        
+        let mouseX = 0;
+        let mouseY = 0;
+
+        function updateGridSize() {
+            cols = Math.floor(window.innerWidth / charWidth);
+            rows = Math.floor(window.innerHeight / charHeight);
+        }
+
+        window.addEventListener('resize', updateGridSize);
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function render() {
+            let output = "";
+            
+            for (let y = 0; y < rows; y++) {
+                for (let x = 0; x < cols; x++) {
+                    const posX = x * charWidth;
+                    const posY = y * charHeight;
+
+                    // Calculate distance from mouse
+                    const dx = mouseX - posX;
+                    const dy = mouseY - posY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // Morph logic: Create a "ripple" or "indent" effect
+                    // We use a sine wave based on distance to create the distortion
+                    const wave = Math.sin(distance * 0.05 - Date.now() * 0.005);
+                    const intensity = Math.max(0, 1 - (distance / 300)); // Influence radius
+                    
+                    // Determine which character to use
+                    let charIndex = Math.floor((wave + 1) * 0.5 * (chars.length - 1));
+                    
+                    // Boost brightness near the mouse
+                    if (intensity > 0) {
+                        charIndex = Math.min(chars.length - 1, charIndex + Math.floor(intensity * 5));
+                    }
+
+                    output += chars[charIndex];
+                }
+                output += "\n";
+            }
+
+            container.textContent = output;
+            requestAnimationFrame(render);
+        }
+
+        updateGridSize();
+        render();
+    </script>
+</body>
+</html>
