@@ -1,356 +1,974 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UTC_application_website</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Samuel O'Connell — Maker &amp; Security Portfolio</title>
+<meta name="description" content="Samuel O'Connell — self-taught maker, developer and cybersecurity enthusiast. Hardware builds, firmware, home-lab security work and software projects.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23050a08'/%3E%3Ctext x='32' y='42' font-family='monospace' font-size='28' font-weight='bold' fill='%2334d399' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #070b10;
+    --bg-soft: #0a0f16;
+    --panel: rgba(15, 23, 32, 0.72);
+    --panel-solid: #101923;
+    --border: rgba(120, 160, 150, 0.16);
+    --border-strong: rgba(52, 211, 153, 0.45);
+    --text: #e9eef2;
+    --text-dim: #93a4ad;
+    --text-faint: #5b6b74;
+    --accent: #34d399;
+    --accent-2: #38bdf8;
+    --danger: #f87171;
+    --radius: 16px;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, "Courier New", monospace;
+    --ascii-color: rgba(90, 120, 115, 0.4);
+    --scanline-opacity: 0;
+    --max-w: 1120px;
+  }
 
-        body, html {
-            width: 100%;
-            height: 100%;
-            background-color: black;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: "Inter", -apple-system, sans-serif;
-        }
+  [data-theme="terminal"] {
+    --bg: #000000;
+    --bg-soft: #000401;
+    --panel: rgba(2, 14, 6, 0.82);
+    --panel-solid: #010d05;
+    --border: rgba(51, 255, 102, 0.22);
+    --border-strong: rgba(51, 255, 102, 0.6);
+    --text: #bdffd4;
+    --text-dim: #5fbf83;
+    --text-faint: #2f6b46;
+    --accent: #33ff66;
+    --accent-2: #33ff66;
+    --danger: #ff5c6c;
+    --font-sans: var(--font-mono);
+    --ascii-color: rgba(51, 255, 102, 0.55);
+    --scanline-opacity: 0.12;
+  }
 
-        img { max-width: 100%; height: auto; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* ASCII Background Layer */
-        #ascii-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 101vh;
-            white-space: pre;
-            line-height: 0.72; 
-            letter-spacing: -1px;
-            user-select: none;
-            font-family: "Courier New", Courier, monospace;
-            font-size: 11px;
-            color: #333;
-            z-index: 1;
-            text-align: center;
-        }
+  html { scroll-behavior: smooth; }
 
-        /* Main White Container */
-        .home-container {
-            position: relative;
-            z-index: 10;
-            width: min(900px, 92%);
-            max-width: 100%;
-            height: calc(100% - 80px);
-            max-height: 900px;
-            background: rgba(255, 255, 255, 0.98);
-            color: #000;
-            border-radius: 24px;
-            padding: 60px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.9);
-            transition: opacity 0.3s ease;
-        }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    transition: background 0.4s ease, color 0.4s ease;
+    min-height: 100%;
+  }
 
-        /* Navigation Button Row */
-        .nav-header {
-            position: absolute;
-            top: 40px;
-            right: 40px;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-end;
-            gap: 10px;
-            max-width: calc(100% - 80px);
-        }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: inherit; }
 
-        /* Default Inactive Button Style */
-        .box-nav-btn {
-            background: #000;
-            color: #fff;
-            border: 2px solid #000;
-            padding: 10px 18px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.65rem;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
+  ::selection { background: var(--accent); color: #04120a; }
 
-        .box-nav-btn:hover {
-            background: #444;
-            border-color: #444;
-            transform: translateY(-2px);
-        }
+  /* ---------- Background layers ---------- */
+  #ascii-background {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    white-space: pre;
+    line-height: 0.72;
+    letter-spacing: -1px;
+    user-select: none;
+    pointer-events: none;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ascii-color);
+    z-index: 0;
+    text-align: center;
+    transition: color 0.4s ease;
+  }
 
-        /* ACTIVE BUTTON STYLE - Highlighted when on the page */
-        .box-nav-btn.active {
-            background: #fff;
-            color: #000;
-            border: 2px solid #000;
-        }
+  #scanlines {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(51,255,102,0.35) 0px,
+      rgba(51,255,102,0.35) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: var(--scanline-opacity);
+    mix-blend-mode: overlay;
+    transition: opacity 0.4s ease;
+  }
 
-        /* Decoration & Typography */
-        .deco-line { width: 40px; height: 4px; background: #000; margin-bottom: 20px; }
-        .deco-dot-grid { font-family: monospace; font-size: 10px; letter-spacing: 4px; margin-bottom: 10px; color: #aaa; }
-        h1 {
-            font-size: clamp(2rem, 6vw, 3.5rem);
-            font-weight: 900;
-            letter-spacing: -3px;
-            line-height: 1;
-            margin-top: 60px;
-            margin-bottom: 40px;
-            text-transform: uppercase;
-            word-break: break-word;
-        }
+  #scanlines::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 180px rgba(0,0,0,0.85);
+  }
 
-        .section-card {
-            margin-top: 30px;
-            padding: 30px;
-            border: 2px solid #000;
-            border-radius: 12px;
-            background: #fff;
-            max-width: 100%;
-        }
+  /* ---------- Layout helpers ---------- */
+  .wrap {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 0 32px;
+  }
 
-        /* Project rows (image + description) */
-        .project-block { margin-bottom: 40px; }
-        .project-block:last-child { margin-bottom: 0; }
-        .project-flex {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: flex-start;
-            gap: 20px;
-            margin-top: 16px;
-        }
-        .project-photo {
-            width: 220px;
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            flex-shrink: 0;
-        }
-        .project-text {
-            flex: 1 1 260px;
-            min-width: 0;
-            font-size: 1.1rem;
-            color: #000;
-            line-height: 1.6;
-        }
+  main { position: relative; z-index: 2; }
 
-        /* Centered Contact Content */
-        #contact-content {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-        .contact-info {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin: 10px 0;
-            text-decoration: none;
-            color: #000;
-            border-bottom: 2px solid transparent;
-            transition: border-color 0.3s;
-        }
-        .contact-info:hover { border-color: #000; }
-        .contact-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 3px; color: #999; margin-top: 20px; }
+  section { padding: 110px 0; position: relative; }
+  section:first-of-type { padding-top: 150px; }
 
-        .hidden { display: none !important; }
-        .footer-note { margin-top: 60px; font-size: 0.7rem; color: #999; text-transform: uppercase; letter-spacing: 1px; }
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .kicker::before {
+    content: "";
+    width: 30px;
+    height: 2px;
+    background: var(--accent);
+    display: inline-block;
+  }
 
-        /* Custom Scrollbar */
-        .home-container::-webkit-scrollbar { width: 4px; }
-        .home-container::-webkit-scrollbar-thumb { background: #000; border-radius: 10px; }
+  h1, h2, h3 { font-weight: 800; letter-spacing: -1px; line-height: 1.05; }
 
-        @media (max-width: 640px) {
-            .home-container {
-                width: 94%;
-                height: calc(100% - 40px);
-                padding: 20px;
-                border-radius: 16px;
-            }
-            .nav-header {
-                top: 20px;
-                right: 20px;
-                max-width: calc(100% - 40px);
-            }
-            .box-nav-btn { padding: 8px 12px; font-size: 0.6rem; }
-            h1 { margin-top: 50px; margin-bottom: 24px; }
-            .section-card { padding: 16px; }
-            .contact-info { font-size: 1.1rem; word-break: break-word; }
-        }
-    </style>
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    text-transform: uppercase;
+    letter-spacing: -1px;
+    margin-bottom: 14px;
+  }
+
+  .section-lede {
+    color: var(--text-dim);
+    font-size: 1.05rem;
+    max-width: 640px;
+    margin-bottom: 56px;
+    line-height: 1.7;
+  }
+
+  /* ---------- Nav ---------- */
+  .site-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+    border-bottom: 1px solid var(--border);
+    transition: background 0.4s ease, border-color 0.4s ease;
+  }
+
+  .nav-inner {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .brand {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    text-decoration: none;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .brand span { color: var(--accent); }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+    transition: color 0.2s ease;
+    position: relative;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+  .nav-right { display: flex; align-items: center; gap: 20px; }
+
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: border-color 0.2s ease, color 0.2s ease;
+  }
+  .theme-toggle:hover { border-color: var(--border-strong); color: var(--text); }
+
+  .toggle-track {
+    width: 30px;
+    height: 16px;
+    background: var(--border);
+    border-radius: 999px;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.25s ease;
+  }
+  .toggle-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: transform 0.25s ease, background 0.25s ease;
+  }
+  [data-theme="terminal"] .toggle-track { background: rgba(51,255,102,0.25); }
+  [data-theme="terminal"] .toggle-thumb { transform: translateX(14px); background: var(--accent); }
+
+  .nav-burger {
+    display: none;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .mobile-menu {
+    display: none;
+    flex-direction: column;
+    padding: 8px 32px 20px;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+  }
+  .mobile-menu a {
+    text-decoration: none;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .mobile-menu.open { display: flex; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding-top: 170px; }
+  .hero-grid { display: grid; gap: 20px; }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.6rem, 7vw, 4.6rem);
+    text-transform: uppercase;
+    margin-bottom: 22px;
+  }
+  .hero h1 .hl { color: var(--accent); }
+
+  .hero-sub {
+    font-size: clamp(1rem, 1.6vw, 1.2rem);
+    color: var(--text-dim);
+    max-width: 620px;
+    line-height: 1.75;
+    margin-bottom: 34px;
+  }
+
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 48px; }
+
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--accent); color: #04140b; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px -8px var(--accent); }
+  .btn-ghost { border-color: var(--border-strong); color: var(--text); }
+  .btn-ghost:hover { transform: translateY(-2px); border-color: var(--accent); color: var(--accent); }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .meta-pill {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--panel);
+  }
+
+  /* ---------- Filter bar ---------- */
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .filter-btn {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 9px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .filter-btn:hover { border-color: var(--border-strong); color: var(--text); }
+  .filter-btn.active { background: var(--accent); color: #04140b; border-color: var(--accent); }
+
+  /* ---------- Project grid ---------- */
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border-strong);
+    box-shadow: 0 20px 45px -25px rgba(0,0,0,0.7);
+  }
+  .card::before, .card::after {
+    content: "";
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--accent);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .card::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+  .card::after { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+  .card:hover::before, .card:hover::after { opacity: 0.9; }
+
+  .card-media { position: relative; width: 100%; aspect-ratio: 16/10; overflow: hidden; background: var(--panel-solid); }
+  .card-media img { width: 100%; height: 100%; object-fit: cover; }
+  .card-media-multi { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; width: 100%; height: 100%; }
+  .card-media-multi img { width: 100%; height: 100%; object-fit: cover; }
+
+  .card-media-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    color: var(--text-faint);
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -2px;
+    background:
+      repeating-linear-gradient(45deg, transparent, transparent 10px, var(--border) 10px, var(--border) 11px);
+  }
+
+  .card-body { padding: 26px; display: flex; flex-direction: column; gap: 14px; flex: 1; }
+
+  .card-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 5px;
+    border: 1px solid var(--border-strong);
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+
+  .card h3 { font-size: 1.25rem; letter-spacing: -0.5px; text-transform: none; }
+
+  .card p { color: var(--text-dim); font-size: 0.95rem; line-height: 1.7; }
+
+  .card-link {
+    margin-top: auto;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding-top: 6px;
+    width: fit-content;
+  }
+  .card-link:hover { text-decoration: underline; }
+
+  /* ---------- Skills ---------- */
+  .skills-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 70px;
+  }
+  .skill-group h3 {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .skill-pill {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    padding: 9px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+  }
+
+  .hobby-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .hobby-card {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+  .hobby-card .hobby-icon {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+  .hobby-card h3 { font-size: 1.1rem; margin-bottom: 10px; text-transform: none; }
+  .hobby-card p { color: var(--text-dim); font-size: 0.92rem; line-height: 1.7; }
+
+  /* ---------- Contact ---------- */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  .contact-card {
+    border: 1px solid var(--border);
+    background: var(--panel);
+    border-radius: var(--radius);
+    padding: 28px;
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.2s ease, transform 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .contact-card:hover { border-color: var(--border-strong); transform: translateY(-3px); }
+  .contact-card svg { width: 22px; height: 22px; color: var(--accent); }
+  .contact-label { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-faint); }
+  .contact-value { font-size: 1.05rem; font-weight: 600; word-break: break-word; }
+
+  footer {
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--border);
+    padding: 36px 0;
+    text-align: center;
+  }
+  footer p {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    color: var(--text-faint);
+    text-transform: uppercase;
+  }
+  footer a { color: var(--text-dim); text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  @media (max-width: 860px) {
+    .skills-columns { grid-template-columns: 1fr; gap: 40px; }
+  }
+
+  @media (max-width: 720px) {
+    .nav-links { display: none; }
+    .nav-burger { display: block; }
+    .wrap { padding: 0 20px; }
+    section { padding: 80px 0; }
+    .hero { padding-top: 140px; }
+    .theme-toggle .toggle-label { display: none; }
+  }
+</style>
 </head>
 <body>
 
-    <div id="ascii-background"></div>
+<div id="ascii-background"></div>
+<div id="scanlines"></div>
 
-    <main id="main-box" class="home-container">
-        <nav class="nav-header">
-            <button id="btn-home" class="box-nav-btn active" onclick="goToPage('home-content', 'btn-home')">Home</button>
-            <button id="btn-showcase" class="box-nav-btn" onclick="goToPage('showcase-content', 'btn-showcase')">Showcase</button>
-            <button id="btn-contact" class="box-nav-btn" onclick="goToPage('contact-content', 'btn-contact')">Contact</button>
-        </nav>
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="#home" class="brand">SAM<span>_</span>OCONNELL</a>
+    <ul class="nav-links">
+      <li><a href="#home" class="active">Home</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-toggle" id="theme-toggle" aria-pressed="false">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        <span class="toggle-label">terminal_mode</span>
+      </button>
+      <button class="nav-burger" id="nav-burger" aria-label="Open menu">☰</button>
+    </div>
+  </div>
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#home">Home</a>
+    <a href="#projects">Projects</a>
+    <a href="#skills">Skills</a>
+    <a href="#contact">Contact</a>
+  </div>
+</header>
 
-        <div id="home-content">
-            <div class="deco-dot-grid"><-Made by Samuel O'Connell-></div>
-            <div class="deco-line"></div>
-            <h1>UTC_College<br>Application<br>Website</h1>
-            <section class="section-card">
-                <h2>Overview</h2>
-                <p style="font-size: 1.2rem; color: #000000; margin-top: 10px; line-height: 1.6;">
-                This website was designed to showcase the skills that I have taught myself, as well as some of the projects I have worked on. (This is not even close to the true amount of projects that I have worked on so if you want to know anything else please ask. :)
-                </p>
-            </section>
-            <div class="footer-note">Status: Home // 1.0.4</div>
+<main>
+
+  <section id="home" class="hero">
+    <div class="wrap hero-grid">
+      <div class="eyebrow">// whoami</div>
+      <h1>Samuel<br>O'Connell<span class="hl">_</span></h1>
+      <p class="hero-sub">
+        I'm a self-taught maker, developer, and cybersecurity enthusiast. I build things —
+        keyboards, network storage, home labs, firmware, games, the occasional questionable
+        electronics project — by pulling apart datasheets, documentation, and a lot of trial and
+        error. This page covers a fraction of what I've built. If something catches your eye,
+        ask — there's always more behind it.
+      </p>
+      <div class="hero-actions">
+        <a href="#projects" class="btn btn-primary">View Projects</a>
+        <a href="#contact" class="btn btn-ghost">Get In Touch</a>
+      </div>
+      <div class="hero-meta">
+        <span class="meta-pill">📍 Keighley, UK</span>
+        <span class="meta-pill">10+ self-directed projects</span>
+        <span class="meta-pill">C · C++ · C# · Python · HTML/CSS</span>
+        <span class="meta-pill">github.com/lana6478</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="wrap">
+      <div class="kicker">01 / project index</div>
+      <h2 class="section-title">Projects &amp; Builds</h2>
+      <p class="section-lede">
+        Hardware, firmware, security experiments and software — most of it built from scratch,
+        soldered by hand, or written from a blank file.
+      </p>
+
+      <div class="filter-bar" id="filter-bar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="security">Security</button>
+        <button class="filter-btn" data-filter="hardware">Hardware</button>
+        <button class="filter-btn" data-filter="software">Software</button>
+        <button class="filter-btn" data-filter="networking">Networking</button>
+        <button class="filter-btn" data-filter="media">Media</button>
+      </div>
+
+      <div class="project-grid" id="project-grid">
+
+        <article class="card" data-tags="software security">
+          <div class="card-media card-media-placeholder">&gt;_</div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag">Software</span><span class="tag">Security</span></div>
+            <h3>GHOSTNET</h3>
+            <p>A terminal-based hacking thriller I wrote in pure Python — no GUI, no dependencies
+              beyond the standard library. Players scan networks, crack authentication, and explore
+              compromised filesystems across a three-part branching storyline with multiple endings.</p>
+            <a class="card-link" href="https://github.com/lana6478/the-game" target="_blank" rel="noopener">View repo →</a>
+          </div>
+        </article>
+
+        <article class="card" data-tags="hardware software">
+          <div class="card-media card-media-placeholder">⌨</div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag">Hardware</span><span class="tag">Firmware</span></div>
+            <h3>Custom Split Keyboard</h3>
+            <p>A Ferris Sweep–style split mechanical keyboard, hand-built and soldered entirely
+              from scratch. I wrote the custom ZMK firmware myself to define the layout and behaviour.</p>
+            <a class="card-link" href="https://github.com/lana6478/zmk-config-cradio" target="_blank" rel="noopener">View repo →</a>
+          </div>
+        </article>
+
+        <article class="card" data-tags="security networking">
+          <div class="card-media card-media-placeholder">◈</div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag">Security</span><span class="tag">Networking</span></div>
+            <h3>Home Lab Pentesting Network</h3>
+            <p>A miniature LAN set up in my bedroom purely for security research — scanning,
+              mapping, and attacking my own devices with Zenmap and other network management tools
+              to learn how real networks can be probed and defended.</p>
+          </div>
+        </article>
+
+        <article class="card" data-tags="hardware security">
+          <div class="card-media"><img src="photo3.jpg" alt="Custom cyberdeck build"></div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag">Hardware</span><span class="tag">Security</span></div>
+            <h3>Custom Cyberdeck</h3>
+            <p>A 3D-printed case housing a Raspberry Pi 5, a compact keyboard, a battery pack, and
+              a Flipper Zero for extra functionality. Originally ran Raspberry Pi OS, later moved to
+              a stable Linux distro. I use it as a portable penetration-testing device for my home
+              network.</p>
+          </div>
+        </article>
+
+        <article class="card" data-tags="hardware networking">
+          <div class="card-media"><img src="photo4.jpg" alt="Custom NAS build"></div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag">Hardware</span><span class="tag">Networking</span></div>
+            <h3>Custom NAS</h3>
+            <p>A self-configured TrueNAS server running two 4TB drives in a mirrored array for
+              redundancy. Originally built to store music from friends' studio sessions, it now
+              works as a full network file server and media host for anyone on the network.</p>
+          </div>
+        </article>
+
+        <article class="card" data-tags="hardware software">
+          <div class="card-media card-media-placeholder">📟</div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag">Hardware</span><span class="tag">Software</span></div>
+            <h3>Raspberry Pi System Monitor</h3>
+            <p>A small Raspberry Pi with an attached screen that sits on my desk and displays live
+              stats from my main computer — CPU, memory, temperature and more at a glance.</p>
+            <a class="card-link" href="https://github.com/lana6478/raspberry-py-moniter" target="_blank" rel="noopener">View repo →</a>
+          </div>
+        </article>
+
+        <article class="card" data-tags="hardware">
+          <div class="card-media card-media-placeholder">⛭</div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag">Hardware</span><span class="tag">Automation</span></div>
+            <h3>3D Printer Farm</h3>
+            <p>Two 3D printers, each connected to its own Raspberry Pi, so I can queue, monitor,
+              and control both machines remotely from my computer.</p>
+          </div>
+        </article>
+
+        <article class="card" data-tags="hardware">
+          <div class="card-media card-media-multi">
+            <img src="photo1.jpg" alt="High voltage transformer build">
+            <img src="photo2.jpg" alt="High voltage transformer glowing">
+          </div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag">Hardware</span><span class="tag">Electronics</span></div>
+            <h3>High Voltage Transformer</h3>
+            <p>Built from parts sourced on AliExpress — a low-power voltage transformer, a handful
+              of capacitors and resistors, and spare wiring. Using a diagram I found online, I
+              soldered the components into a voltage-multiplier circuit that steps up and outputs
+              high voltage across two wires.</p>
+          </div>
+        </article>
+
+        <article class="card" data-tags="software">
+          <div class="card-media card-media-placeholder">⌘</div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag">Software</span><span class="tag">Web</span></div>
+            <h3>Web Development &amp; Self-Hosting</h3>
+            <p>I've built a number of websites and small games for myself and for other people and
+              businesses, and self-hosted HTML sites and Minecraft servers on old, repurposed
+              computers.</p>
+          </div>
+        </article>
+
+        <article class="card" data-tags="media">
+          <div class="card-media card-media-placeholder">✈</div>
+          <div class="card-body">
+            <div class="card-tags"><span class="tag">Media</span></div>
+            <h3>Drone Videography</h3>
+            <p>Filmed local races using a DJI Mini SE, providing videography services for a bit of
+              extra income — my first taste of freelance client work.</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="wrap">
+      <div class="kicker">02 / capabilities</div>
+      <h2 class="section-title">Skills &amp; Hobbies</h2>
+      <p class="section-lede">
+        The technical toolkit on top, and the things I spend time on outside of it below —
+        both feed into how I build.
+      </p>
+
+      <div class="skills-columns">
+        <div class="skill-group">
+          <h3>Languages</h3>
+          <div class="pill-row">
+            <span class="skill-pill">C</span>
+            <span class="skill-pill">C++</span>
+            <span class="skill-pill">C#</span>
+            <span class="skill-pill">Python</span>
+            <span class="skill-pill">HTML</span>
+            <span class="skill-pill">CSS</span>
+          </div>
         </div>
-
-        <div id="showcase-content" class="hidden">
-            <div class="deco-dot-grid">/ / / / /</div>
-            <div class="deco-line"></div>
-            <h1>Project<br>Showcase</h1>
-            <section class="section-card">
-                <div class="project-block">
-                    <h3>High Voltage Transformer</h3>
-                    <div class="project-flex">
-                        <img class="project-photo" src="photo1.jpg" alt="High voltage transformer build">
-                        <img class="project-photo" src="photo2.jpg" alt="High voltage transformer glowing">
-                        <p class="project-text">
-                            I started makeing this by buying the parts from Aliexpress, they consisted of a low power voltage
-                            transformer, a hand full of capacitors and resistors and some spear wireing. I then used a diogram
-                            I found online to solder the components together in a way that would multipy the voltage and output it to two wires.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="project-block">
-                    <h3>Custom Cyberdeck</h3>
-                    <div class="project-flex">
-                        <img class="project-photo" src="photo3.jpg" alt="Custom cyberdeck build">
-                        <p class="project-text">
-                            I had started to see trends of people making their own custom mini computer systems (cyber deck) and I wanted to have one myself.
-                            It consists of a custom 3-D printed case, a raspberry pi five, small keyboard, battery pack and a flipper zero for additional functionality.
-                            I first used raspberry pi OS as the operating system but later changed to a stable version of Linux. I used it primarily as a cyber security device
-                            for penetration testing on my own home network.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="project-block">
-                    <h3>Custom NAS (Network Storage)</h3>
-                    <div class="project-flex">
-                        <img class="project-photo" src="photo4.jpg" alt="Custom NAS build">
-                        <p class="project-text">
-                            I originally made this NAS for storing music files for when my friends
-                            came over and made music. It runs a version of Linux called TrueNAS and
-                            once that is configured it makes the computer into a locally hosted file
-                            server that you can access from the network section in files.
-                        </p>
-                    </div>
-                </div>
-            </section>
-            <div class="footer-note">Status: Project // 1.0.1</div>
+        <div class="skill-group">
+          <h3>Systems &amp; Tools</h3>
+          <div class="pill-row">
+            <span class="skill-pill">Linux</span>
+            <span class="skill-pill">TrueNAS</span>
+            <span class="skill-pill">ZMK Firmware</span>
+            <span class="skill-pill">Raspberry Pi</span>
+            <span class="skill-pill">Networking / Zenmap</span>
+            <span class="skill-pill">Git &amp; GitHub</span>
+            <span class="skill-pill">3D Printing</span>
+            <span class="skill-pill">Soldering &amp; PCB Work</span>
+          </div>
         </div>
+      </div>
 
-        <div id="contact-content" class="hidden">
-            <div class="deco-dot-grid">. . . . .</div>
-            <h1>Contact</h1>
-            <p class="contact-label">Email</p>
-            <a href="mailto:samueloconnell62@gmail.com" class="contact-info">samueloconnell62@gmail.com</a>
-            <p class="contact-label">instagram</p>
-            <a href="#" class="contact-info">@samueloconnell79</a>
-            <p class="contact-label">Location</p>
-            <p class="contact-info">keighley, UK</p>
-            <div class="footer-note">Status: Contact // 1.0.4</div>
+      <div class="hobby-grid">
+        <div class="hobby-card">
+          <div class="hobby-icon">⚡</div>
+          <h3>Electronics Experiments</h3>
+          <p>Some of my favourite soldering projects didn't start as "real" builds — like a taser
+            made from a diode-and-capacitor voltage-multiplier circuit paired with a smaller
+            control board, or a tattoo gun built from a biro pen and a variable resistor so I
+            could adjust the speed.</p>
         </div>
-    </main>
+        <div class="hobby-card">
+          <div class="hobby-icon">📖</div>
+          <h3>Philosophy</h3>
+          <p>I read widely outside of tech — Camus' <em>The Stranger</em> among others — and have
+            spent time researching meta-ethics and the philosophy of religion.</p>
+        </div>
+        <div class="hobby-card">
+          <div class="hobby-icon">🏃</div>
+          <h3>Sports</h3>
+          <p>Two years of competitive cricket, several years of competitive stand-up
+            paddleboarding — including races across the UK and a few wins — and running, currently
+            sitting at a sub-20-minute 5K.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script>
-        let currentActivePageId = 'home-content';
-        let currentActiveBtnId = 'btn-home';
+  <section id="contact">
+    <div class="wrap">
+      <div class="kicker">03 / connect</div>
+      <h2 class="section-title">Contact</h2>
+      <p class="section-lede">Best way to reach me is email — happy to talk about any of the above in more detail.</p>
 
-        function goToPage(pageId, btnId) {
-            if (pageId === currentActivePageId) return;
+      <div class="contact-grid">
+        <a class="contact-card" href="mailto:samueloconnell62@gmail.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <span class="contact-label">Email</span>
+          <span class="contact-value">samueloconnell62@gmail.com</span>
+        </a>
+        <a class="contact-card" href="https://github.com/lana6478" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.73.5.98 5.24.98 11.52c0 5.02 3.26 9.28 7.78 10.78.57.1.78-.25.78-.55 0-.27-.01-1.17-.01-2.13-3.17.58-3.99-.77-4.24-1.48-.14-.36-.75-1.48-1.28-1.78-.44-.24-1.07-.82-.02-.83.99-.01 1.7.91 1.94 1.29 1.13 1.9 2.94 1.36 3.66 1.04.11-.82.44-1.36.8-1.68-2.78-.32-5.7-1.39-5.7-6.17 0-1.36.49-2.48 1.29-3.35-.13-.32-.56-1.6.12-3.33 0 0 1.05-.34 3.45 1.28a11.8 11.8 0 0 1 6.28 0c2.4-1.62 3.45-1.28 3.45-1.28.68 1.73.25 3.01.12 3.33.8.87 1.29 1.98 1.29 3.35 0 4.8-2.93 5.85-5.72 6.16.45.39.85 1.15.85 2.33 0 1.68-.01 3.03-.01 3.45 0 .3.21.66.79.55A11.03 11.03 0 0 0 23.02 11.5C23.02 5.24 18.27.5 12 .5z"></path></svg>
+          <span class="contact-label">GitHub</span>
+          <span class="contact-value">github.com/lana6478</span>
+        </a>
+        <a class="contact-card" href="https://instagram.com/samueloconnell79" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>
+          <span class="contact-label">Instagram</span>
+          <span class="contact-value">@samueloconnell79</span>
+        </a>
+        <div class="contact-card" style="cursor:default;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span class="contact-label">Location</span>
+          <span class="contact-value">Keighley, UK</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            const box = document.getElementById('main-box');
-            box.style.opacity = "0";
+</main>
 
-            setTimeout(() => {
-                // Update Page Visibility
-                document.getElementById(currentActivePageId).classList.add('hidden');
-                document.getElementById(pageId).classList.remove('hidden');
-                
-                // Update Button Visuals
-                document.getElementById(currentActiveBtnId).classList.remove('active');
-                document.getElementById(btnId).classList.add('active');
+<footer>
+  <p>Made by Samuel O'Connell &nbsp;·&nbsp; <a href="https://github.com/lana6478" target="_blank" rel="noopener">github.com/lana6478</a> &nbsp;·&nbsp; status: online</p>
+</footer>
 
-                // Set new trackers
-                currentActivePageId = pageId;
-                currentActiveBtnId = btnId;
+<script>
+  // ---------- Theme toggle ----------
+  const root = document.documentElement;
+  const themeToggle = document.getElementById('theme-toggle');
+  const savedTheme = localStorage.getItem('site-theme');
+  if (savedTheme === 'terminal') {
+    root.setAttribute('data-theme', 'terminal');
+    themeToggle.setAttribute('aria-pressed', 'true');
+  }
+  themeToggle.addEventListener('click', () => {
+    const isTerminal = root.getAttribute('data-theme') === 'terminal';
+    if (isTerminal) {
+      root.removeAttribute('data-theme');
+      localStorage.setItem('site-theme', 'default');
+      themeToggle.setAttribute('aria-pressed', 'false');
+    } else {
+      root.setAttribute('data-theme', 'terminal');
+      localStorage.setItem('site-theme', 'terminal');
+      themeToggle.setAttribute('aria-pressed', 'true');
+    }
+  });
 
-                box.style.opacity = "1";
-                box.scrollTop = 0;
-            }, 200);
-        }
+  // ---------- Mobile nav ----------
+  const burger = document.getElementById('nav-burger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  burger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+  mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
 
-        // ASCII Background Logic
-        const container = document.getElementById('ascii-background');
-        const chars = " .:-=+*#%@@#%*+=-:. "; 
-        let cols, rows;
-        let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0, time = 0;
+  // ---------- Active nav link on scroll ----------
+  const sections = document.querySelectorAll('main section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+  const onScroll = () => {
+    let current = sections[0]?.id;
+    sections.forEach(sec => {
+      if (window.scrollY >= sec.offsetTop - 160) current = sec.id;
+    });
+    navLinks.forEach(link => {
+      link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+    });
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 
-        function updateLayout() {
-            const charW = 6.5; 
-            const charH = 8; 
-            cols = Math.ceil(window.innerWidth / charW);
-            rows = Math.ceil(window.innerHeight / charH) + 2;
-        }
+  // ---------- Project filter ----------
+  const filterBar = document.getElementById('filter-bar');
+  const cards = document.querySelectorAll('#project-grid .card');
+  filterBar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.filter;
+    cards.forEach(card => {
+      const tags = card.dataset.tags.split(' ');
+      card.style.display = (filter === 'all' || tags.includes(filter)) ? '' : 'none';
+    });
+  });
 
-        window.addEventListener('resize', updateLayout);
-        window.addEventListener('mousemove', (e) => { targetX = e.clientX; targetY = e.clientY; });
+  // ---------- ASCII background ----------
+  const container = document.getElementById('ascii-background');
+  const chars = " .:-=+*#%@@#%*+=-:. ";
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let cols, rows;
+  let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0, time = 0;
 
-        function animate() {
-            time += 0.003; 
-            mouseX += (targetX - mouseX) * 0.06;
-            mouseY += (targetY - mouseY) * 0.06;
-            let output = "";
-            for (let y = 0; y < rows; y++) {
-                let rowText = "";
-                for (let x = 0; x < cols; x++) {
-                    const px = x * 6.5, py = y * 8;
-                    const dx = mouseX - px, dy = mouseY - py;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    const warpStrength = Math.exp(-dist / 220) * 38;
-                    const dX = x + (dx / (dist + 1)) * warpStrength;
-                    const dY = y + (dy / (dist + 1)) * warpStrength;
-                    const val = Math.sin(dX * 0.1) * Math.cos(dY * 0.1 + time) + Math.sin((dX * 0.04) + (dY * 0.04) - time * 0.4);
-                    let charIdx = Math.floor(((val + 1.5) / 3) * (chars.length - 1));
-                    rowText += chars[Math.max(0, Math.min(chars.length - 1, charIdx))];
-                }
-                output += rowText + "\n";
-            }
-            container.textContent = output;
-            requestAnimationFrame(animate);
-        }
+  function updateLayout() {
+    const charW = 6.5, charH = 8;
+    cols = Math.ceil(window.innerWidth / charW);
+    rows = Math.ceil(window.innerHeight / charH) + 2;
+  }
 
-        updateLayout();
-        targetX = window.innerWidth / 2;
-        targetY = window.innerHeight / 2;
-        animate();
-    </script>
+  window.addEventListener('resize', updateLayout);
+  window.addEventListener('mousemove', (e) => { targetX = e.clientX; targetY = e.clientY; });
+
+  function renderFrame() {
+    time += 0.003;
+    mouseX += (targetX - mouseX) * 0.06;
+    mouseY += (targetY - mouseY) * 0.06;
+    let output = "";
+    for (let y = 0; y < rows; y++) {
+      let rowText = "";
+      for (let x = 0; x < cols; x++) {
+        const px = x * 6.5, py = y * 8;
+        const dx = mouseX - px, dy = mouseY - py;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const warpStrength = Math.exp(-dist / 220) * 38;
+        const dX = x + (dx / (dist + 1)) * warpStrength;
+        const dY = y + (dy / (dist + 1)) * warpStrength;
+        const val = Math.sin(dX * 0.1) * Math.cos(dY * 0.1 + time) + Math.sin((dX * 0.04) + (dY * 0.04) - time * 0.4);
+        let charIdx = Math.floor(((val + 1.5) / 3) * (chars.length - 1));
+        rowText += chars[Math.max(0, Math.min(chars.length - 1, charIdx))];
+      }
+      output += rowText + "\n";
+    }
+    container.textContent = output;
+  }
+
+  function animate() {
+    renderFrame();
+    requestAnimationFrame(animate);
+  }
+
+  updateLayout();
+  targetX = window.innerWidth / 2;
+  targetY = window.innerHeight / 2;
+
+  if (reduceMotion) {
+    renderFrame();
+  } else {
+    animate();
+  }
+</script>
 </body>
 </html>
