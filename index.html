@@ -83,7 +83,7 @@
     font-size: 11px;
     color: var(--ascii-color);
     z-index: 0;
-    text-align: center;
+    text-align: left;
     transition: color 0.4s ease;
   }
 
@@ -923,8 +923,27 @@
   let cols, rows;
   let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0, time = 0;
 
+  function measureCharSize() {
+    const probe = document.createElement('span');
+    const cs = getComputedStyle(container);
+    probe.style.fontFamily = cs.fontFamily;
+    probe.style.fontSize = cs.fontSize;
+    probe.style.letterSpacing = cs.letterSpacing;
+    probe.style.lineHeight = cs.lineHeight;
+    probe.style.whiteSpace = 'pre';
+    probe.style.position = 'absolute';
+    probe.style.visibility = 'hidden';
+    probe.textContent = '#'.repeat(50);
+    document.body.appendChild(probe);
+    const rect = probe.getBoundingClientRect();
+    document.body.removeChild(probe);
+    return { w: rect.width / 50, h: rect.height };
+  }
+
+  let charW = 6.5, charH = 8;
+
   function updateLayout() {
-    const charW = 6.5, charH = 8;
+    ({ w: charW, h: charH } = measureCharSize());
     cols = Math.ceil(window.innerWidth / charW);
     rows = Math.ceil(window.innerHeight / charH) + 2;
   }
@@ -940,7 +959,7 @@
     for (let y = 0; y < rows; y++) {
       let rowText = "";
       for (let x = 0; x < cols; x++) {
-        const px = x * 6.5, py = y * 8;
+        const px = x * charW, py = y * charH;
         const dx = mouseX - px, dy = mouseY - py;
         const dist = Math.sqrt(dx * dx + dy * dy);
         const warpStrength = Math.exp(-dist / 220) * 38;
